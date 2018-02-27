@@ -21,10 +21,10 @@ def read_csv(filename):
             features.append(currentLine[0:144])
             policy_labels.append(currentLine[144:145])
             value_labels.append(currentLine[145:146])
-    return np.array(features[:-200]), \
-           np.array(policy_labels[:-200]), \
-           np.array(value_labels[:-200]), \
-           np.array(features[-200:]), \
-           np.array(policy_labels[-200:]), \
-           np.array(value_labels[-200:])
+    return np.array(features[:-600]), \
+           np.array(policy_labels[:-600]), \
+           np.array(value_labels[:-600]), \
+           np.array(features[-600:]), \
+           np.array(policy_labels[-600:]), \
+           np.array(value_labels[-600:])
 

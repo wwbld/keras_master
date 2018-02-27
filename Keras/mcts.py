@@ -292,6 +292,7 @@ class Game(object):
         self.n_in_row = int(kwargs.get('n_in_row', 5))
         self.time = float(kwargs.get('time', 5))
         self.max_actions = int(kwargs.get('max_actions', 1000))
+        self.count = int(kwargs.get('count', -1))
 
     def start(self):
         p1, p2 = self.init_player()
@@ -323,7 +324,7 @@ class Game(object):
             if end:
                 if winner != -1:
                     print("Game end. Winner is", winner)
-                    self.print_move_win(globalStates, moves, winner)
+                    self.print_move_win(globalStates, moves, winner-1)
                 break
 
     # format 144 input features, 1 move, 1 winner
@@ -336,7 +337,8 @@ class Game(object):
                 temp.append(moves[i])
                 temp.append(winner)
                 writer.writerow(temp)
-                print("{0} rows in file".format(sum(1 for row in csv.reader(open("../data/sample.csv")))))
+            print("{0} rows in file, count {1}".\
+                  format(sum(1 for row in csv.reader(open("../data/sample.csv"))), self.count))
 
     def init_player(self):
         plist = list(range(len(self.player)))
@@ -410,10 +412,10 @@ class Game(object):
 
 def run():
     n = 5
-    for _ in range(1):
+    for i in range(200):
         try:
             board = Board(width=8, height=8, n_in_row=n)
-            game = Game(board, n_in_row=n, time=1)
+            game = Game(board, n_in_row=n, time=1, count=i)
             game.start()
         except KeyboardInterrupt:
             print('\n\rquit')
