@@ -16,5 +16,5 @@ for i in range(10):
     predictions = model.predict(np.array([testing_data[i]]))
     print("cycle{0}".format(i))
 
-    print("policy is {0}, value is {1}".format(util.get_policy(predictions)[0],
+    print("policy is {0}, value is {1}".format(util.get_policy(predictions),
                                                util.get_value(predictions)[1]))

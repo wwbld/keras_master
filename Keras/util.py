@@ -24,9 +24,12 @@ def read_csv(filename):
            np.array(policy_labels[-60:]), \
            np.array(value_labels[-60:])
 
+# return the most possible move
 def get_policy(predictions):
-    return np.fliplr(np.argsort(predictions[0]))[0]
+    #return np.fliplr(np.argsort(predictions[0]))[0]
+    return np.argmax(predictions[0])
 
+# return the possibilities of player1 and player2
 def get_value(predictions):
     return predictions[1][0]
 
@@ -54,4 +57,4 @@ def give_exact_prediction(model, board, move, player, human, ai):
                 state.append(0)
                 state.append(0)
     predictions = model.predict(np.array([state]))
-    return get_policy(predictions)[0], get_value(predictions)[player-1]    
+    return get_policy(predictions), get_value(predictions)[player-1]    

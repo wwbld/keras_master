@@ -20,7 +20,7 @@ import csv
 from random import choice, shuffle
 from math import log, sqrt
 
-N_TIMES = 1
+N_TIMES = 5
 SAMPLE = '../data/sample_2.csv'
 MODEL = '../../model/model_1'
 
@@ -139,7 +139,7 @@ class MCTS(object):
                 value, move = max(
                     ((wins[(player, move)] / plays[(player, move)]) +
                      (util.give_exact_prediction(self.model, board, 
-                      move, player, self.human, self.ai))[0] / (1 + plays[(player, move)]), move)
+                      move, player, self.human, self.ai)[0]) / (1 + plays[(player, move)]), move)
                     for move in availables)   # AlphaGo
             else:
                 # choose the action has the max (policy + value)
@@ -149,7 +149,7 @@ class MCTS(object):
                     for move in availables)   
             board.update(player, move)
 
-            print('move is ', move, ', player is ', player)
+            print('move is {0:2d}, player is {1}'.format(move, player))
 
             # Expand
             # add only one new child node each time
