@@ -14,6 +14,8 @@ import csv
 from random import choice, shuffle
 from math import log, sqrt
 
+N_TIMES = 100
+
 class Board(object):
     """
     board for game
@@ -382,37 +384,31 @@ class Game(object):
                     print('_'.center(8), end='')
             print('\r\n\r\n')
     
-    # format 64*2 features + 14 padding zeros + 2 turns
+    # format 8x8*3 = 192 features
     def printBoard(self, board, p, human, ai):
         width = board.width
         height = board.height
-        human_count = 0
-        ai_count = 0
         state = []
         for i in range(height-1, -1, -1):
             for j in range(width):
                 loc = i * width + j
                 if board.states[loc] == human.player:
-                    human_count += 1
                     state.append(1)
+                    state.append(0)
                     state.append(0)
                 elif board.states[loc] == ai.player:
-                    ai_count += 1
                     state.append(0)
                     state.append(1)
+                    state.append(0)
                 else:
                     state.append(0)
                     state.append(0)
-        ## padding
-        for _ in range(14):
-            state.append(0)
-        state.append(p-1)
-        state.append(0)
+                    state.append(0)
         return state
 
 def run():
     n = 5
-    for i in range(200):
+    for i in range(N_TIMES):
         try:
             board = Board(width=8, height=8, n_in_row=n)
             game = Game(board, n_in_row=n, time=1, count=i)

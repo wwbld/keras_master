@@ -5,8 +5,8 @@ from keras.utils import plot_model
 import numpy as np
 import util
 
-FILE = '../data/sample.csv'
-SAVE = '../model/model_1'
+FILE = '../data/sample_1.csv'
+SAVE = '../../model/model_1'
 
 training_data, policy_training_target, value_training_target, \
 testing_data, policy_testing_target, value_testing_target = util.read_csv(FILE)
@@ -14,6 +14,7 @@ testing_data, policy_testing_target, value_testing_target = util.read_csv(FILE)
 model = load_model(SAVE)
 for i in range(10):
     predictions = model.predict(np.array([testing_data[i]]))
-    print("cycle{0} move:{1} {2}, win: {3}".format(i, np.argmax(predictions[0]),  
-                                                np.fliplr(np.argsort(predictions[0])),\
-                                                np.argmax(predictions[1])))
+    print("cycle{0}".format(i))
+
+    print("policy is {0}, value is {1}".format(util.get_policy(predictions),
+                                               util.get_value(predictions)))

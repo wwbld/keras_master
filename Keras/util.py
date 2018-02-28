@@ -18,13 +18,18 @@ def read_csv(filename):
         for line in inf:
             currentLine = line.strip().split(",")
             currentLine = list(map(str2int, currentLine))
-            features.append(currentLine[0:144])
-            policy_labels.append(currentLine[144:145])
-            value_labels.append(currentLine[145:146])
-    return np.array(features[:-600]), \
-           np.array(policy_labels[:-600]), \
-           np.array(value_labels[:-600]), \
-           np.array(features[-600:]), \
-           np.array(policy_labels[-600:]), \
-           np.array(value_labels[-600:])
+            features.append(currentLine[0:192])
+            policy_labels.append(currentLine[192:193])
+            value_labels.append(currentLine[193:194])
+    return np.array(features[:-60]), \
+           np.array(policy_labels[:-60]), \
+           np.array(value_labels[:-60]), \
+           np.array(features[-60:]), \
+           np.array(policy_labels[-60:]), \
+           np.array(value_labels[-60:])
 
+def get_policy(predictions):
+    return np.fliplr(np.argsort(predictions[0]))
+
+def get_value(predictions):
+    return predictions[1]
