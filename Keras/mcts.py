@@ -7,6 +7,12 @@ This implement of MC and UCT was not completely right,
 but it can work, please see README.
 Welcome to discuss with me.
 """ 
+import os
+os.environ['KERAS_BACKEND'] = 'tensorflow'
+from keras.models import load_model
+import numpy as np
+import util
+
 
 import copy
 import time
@@ -14,7 +20,9 @@ import csv
 from random import choice, shuffle
 from math import log, sqrt
 
-N_TIMES = 100
+N_TIMES = 1
+SAMPLE = '../data/sample_2.csv'
+MODEL = '../../model/model_1'
 
 class Board(object):
     """
@@ -69,8 +77,12 @@ class MCTS(object):
     AI player, use Monte Carlo Tree Search with UCB
     """
 
-    def __init__(self, board, play_turn, n_in_row=5, time=5, max_actions=1000):
+    def __init__(self, board, model, 
+                 play_turn, n_in_row=5, time=5, max_actions=1000):
         self.board = board
+        self.model = model
+        self.human = None
+        self.ai = None
         self.play_turn = play_turn
         self.calculation_time = float(time)
         self.max_actions = max_actions
@@ -126,27 +138,18 @@ class MCTS(object):
                     sum(plays[(player, move)] for move in availables))
                 value, move = max(
                     ((wins[(player, move)] / plays[(player, move)]) +
-                     sqrt(self.confident * log_total / plays[(player, move)]), move)
-                    for move in availables)   # UCB
+                     (util.give_exact_prediction(self.model, board, 
+                      move, player, self.human, self.ai))[0] / (1 + plays[(player, move)]), move)
+                    for move in availables)   # AlphaGo
             else:
-                # a simple strategy
-                # prefer to choose the nearer moves without statistics,
-                # and then the farthers.
-                # try ro add statistics info to all moves quickly
-                adjacents = []
-                if len(availables) > self.n_in_row:
-                    adjacents = self.adjacent_moves(board, player, plays)
-
-                if len(adjacents):
-                    move = choice(adjacents)
-                else:
-                    peripherals = []
-                    for move in availables:
-                        if not plays.get((player, move)):
-                            peripherals.append(move)
-                    move = choice(peripherals)
-
+                # choose the action has the max (policy + value)
+                value, move = max(
+                    (util.give_exact_prediction(self.model, board, move, player, self.human, self.ai)[0] + 
+                     util.give_exact_prediction(self.model, board, move, player, self.human, self.ai)[1], move)
+                    for move in availables)   
             board.update(player, move)
+
+            print('move is ', move, ', player is ', player)
 
             # Expand
             # add only one new child node each time
@@ -173,6 +176,7 @@ class MCTS(object):
             plays[(player, move)] += 1 # all visited moves
             if player == winner:
                 wins[(player, move)] += 1 # only winner's moves
+                print("winner is, ", player)
 
     def get_player(self, players):
         p = players.pop(0)
@@ -288,8 +292,9 @@ class Game(object):
     game server
     """
 
-    def __init__(self, board, **kwargs):
+    def __init__(self, board, model, **kwargs):
         self.board = board
+        self.model = model
         self.player = [1, 2] # player1 and player2
         self.n_in_row = int(kwargs.get('n_in_row', 5))
         self.time = float(kwargs.get('time', 5))
@@ -300,14 +305,20 @@ class Game(object):
         p1, p2 = self.init_player()
         self.board.init_board()
 
-        ai = MCTS(self.board, [p1, p2], self.n_in_row, self.time, self.max_actions)
-        ai1 = MCTS(self.board, [p2,p1], self.n_in_row, self.time, self.max_actions)
+        human = MCTS(self.board, self.model, 
+                     [p1, p2], self.n_in_row, self.time, self.max_actions)
+        ai = MCTS(self.board, self.model,
+                  [p2,p1], self.n_in_row, self.time, self.max_actions)
+        human.human = human.player
+        human.ai = ai.player
+        ai.human = human.player
+        ai.ai = ai.player
         players = {}
         players[p1] = ai
-        players[p2] = ai1
+        players[p2] = human
         turn = [p1, p2]
         shuffle(turn)
-        #self.graphic(self.board, ai1, ai)
+        self.graphic(self.board, human, ai)
         globalStates = []
         moves = []
         while(1):
@@ -316,12 +327,12 @@ class Game(object):
             player_in_turn = players[p]
             move = player_in_turn.get_action()
              
-            tempState = self.printBoard(self.board, p, ai1, ai)
+            tempState = self.printBoard(self.board, p, human, ai)
             globalStates.append(tempState)
             moves.append(move)
      
             self.board.update(p, move)
-            #self.graphic(self.board, ai1, ai)
+            self.graphic(self.board, human, ai)
             end, winner = self.game_end(ai)
             if end:
                 if winner != -1:
@@ -331,7 +342,7 @@ class Game(object):
 
     # format 144 input features, 1 move, 1 winner
     def print_move_win(self, globalStates, moves, winner):
-        myfile = open("../data/sample.csv", 'a+')
+        myfile = open(SAMPLE, 'a+')
         with myfile:
             writer = csv.writer(myfile)
             for i in range(len(globalStates)):
@@ -340,7 +351,7 @@ class Game(object):
                 temp.append(winner)
                 writer.writerow(temp)
             print("{0} rows in file, count {1}".\
-                  format(sum(1 for row in csv.reader(open("../data/sample.csv"))), self.count))
+                  format(sum(1 for row in csv.reader(open(SAMPLE))), self.count))
 
     def init_player(self):
         plist = list(range(len(self.player)))
@@ -408,10 +419,11 @@ class Game(object):
 
 def run():
     n = 5
+    model = load_model(MODEL)
     for i in range(N_TIMES):
         try:
             board = Board(width=8, height=8, n_in_row=n)
-            game = Game(board, n_in_row=n, time=1, count=i)
+            game = Game(board, model, n_in_row=n, time=1, count=i)
             game.start()
         except KeyboardInterrupt:
             print('\n\rquit')
