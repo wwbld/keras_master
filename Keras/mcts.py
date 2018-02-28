@@ -350,8 +350,8 @@ class Game(object):
                 temp.append(moves[i])
                 temp.append(winner)
                 writer.writerow(temp)
-            print("{0} rows in file, count {1}".\
-                  format(sum(1 for row in csv.reader(open(SAMPLE))), self.count))
+        print("{0} rows in file, count {1}".\
+              format(sum(1 for row in csv.reader(open(SAMPLE))), self.count))
 
     def init_player(self):
         plist = list(range(len(self.player)))
