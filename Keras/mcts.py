@@ -20,9 +20,10 @@ import csv
 from random import choice, shuffle
 from math import log, sqrt
 
-N_TIMES = 20
-SAMPLE = '../data/sample_3.csv'
-MODEL = '../../model/model_2'
+# model n create sample n+1
+N_TIMES = 5
+SAMPLE = '../data/sample_4.csv'
+MODEL = '../../model/model_3'
 
 class Board(object):
     """
@@ -338,7 +339,9 @@ class Game(object):
                 if winner != -1:
                     print("Game end. Winner is", winner)
                     self.print_move_win(globalStates, moves, winner-1)
+                    return winner-1
                 break
+        return -1
 
     # format 144 input features, 1 move, 1 winner
     def print_move_win(self, globalStates, moves, winner):
@@ -419,14 +422,26 @@ class Game(object):
 
 def run():
     n = 5
+    win1 = 0
+    win2 = 0
+    tie = 0
     model = load_model(MODEL)
     for i in range(N_TIMES):
         try:
             board = Board(width=8, height=8, n_in_row=n)
             game = Game(board, model, n_in_row=n, time=1, count=i)
-            game.start()
+            winner = game.start()
+            if winner == 0:
+                win1 += 1
+            elif winner == 1:
+                win2 += 1
+            else:
+                tie += 1
         except KeyboardInterrupt:
             print('\n\rquit')
+    print("AI player 1 won {0} times".format(win1))
+    print("HUMAN player 2 won {0} times".format(win2))
+    print("{0} ties".format(tie))
 
 if __name__ == '__main__':
     run()

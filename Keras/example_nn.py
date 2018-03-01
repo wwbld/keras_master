@@ -12,13 +12,13 @@ from keras import optimizers
 import matplotlib.pyplot as plt
 import util
 
-FILE = '../data/sample_2.csv'
-SAVE = '../../model/model_2'
+FILE = '../data/sample_3.csv'
+SAVE = '../../model/model_3'
 
-batch_size = 256
+batch_size = 512
 policy_num_classes = 64
 value_num_classes = 2
-epochs = 200
+epochs = 60
 
 training_data, policy_training_target, value_training_target, \
 testing_data, policy_testing_target, value_testing_target = util.read_csv(FILE)
