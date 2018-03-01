@@ -20,9 +20,9 @@ import csv
 from random import choice, shuffle
 from math import log, sqrt
 
-N_TIMES = 5
-SAMPLE = '../data/sample_2.csv'
-MODEL = '../../model/model_1'
+N_TIMES = 20
+SAMPLE = '../data/sample_3.csv'
+MODEL = '../../model/model_2'
 
 class Board(object):
     """

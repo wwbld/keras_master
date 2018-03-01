@@ -17,12 +17,12 @@ def read_csv(filename):
             features.append(currentLine[0:192])
             policy_labels.append(currentLine[192:193])
             value_labels.append(currentLine[193:194])
-    return np.array(features[:-60]), \
-           np.array(policy_labels[:-60]), \
-           np.array(value_labels[:-60]), \
-           np.array(features[-60:]), \
-           np.array(policy_labels[-60:]), \
-           np.array(value_labels[-60:])
+    return np.array(features[:-300]), \
+           np.array(policy_labels[:-300]), \
+           np.array(value_labels[:-300]), \
+           np.array(features[-300:]), \
+           np.array(policy_labels[-300:]), \
+           np.array(value_labels[-300:])
 
 # return the most possible move
 def get_policy(predictions):

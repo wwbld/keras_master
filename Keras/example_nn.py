@@ -12,8 +12,8 @@ from keras import optimizers
 import matplotlib.pyplot as plt
 import util
 
-FILE = '../data/sample_1.csv'
-SAVE = '../../model/model_1'
+FILE = '../data/sample_2.csv'
+SAVE = '../../model/model_2'
 
 batch_size = 256
 policy_num_classes = 64
